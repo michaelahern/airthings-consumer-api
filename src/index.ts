@@ -20,14 +20,15 @@ export class AirthingsClient {
     }
 
     /**
+     * List all accounts the current user is member of
+     *
+     * @remarks
      * Lists all accounts the current user is member of. The data returned by this endpoint
      * changes when a user is added or removed from business accounts. It is safe to assume
      * that the accountId remains constant for Consumer users. The accountId returned by this
      * endpoint is used to fetch the devices and sensors from the other endpoints.
      *
-     * https://consumer-api-doc.airthings.com/api-docs#tag/Accounts
-     *
-     *
+     * @see https://consumer-api-doc.airthings.com/api-docs#tag/Accounts
      */
     public async getAccounts(): Promise<Accounts> {
         const url = 'https://consumer-api.airthings.com/v1/accounts';
@@ -36,10 +37,13 @@ export class AirthingsClient {
     }
 
     /**
+     * Get all devices connected to a user
+     *
+     * @remarks
      * List all devices (and their sensor abilities) connected to a user’s account. The data
      * returned by this endpoint changes when a device is registered, unregistered or renamed.
      *
-     * https://consumer-api-doc.airthings.com/api-docs#tag/Device
+     * @see https://consumer-api-doc.airthings.com/api-docs#tag/Device
      *
      * @returns A list of devices for the account.
      */
@@ -52,12 +56,15 @@ export class AirthingsClient {
     }
 
     /**
+     * Get sensors for a set of devices
+     *
+     * @remarks
      * Get sensors for a set of devices. The response will contain the latest sensor values for
      * the devices. The sensor values are updated depending on the device types sampling
      * rate. It is recommended to poll the API at a regular interval to get the latest
      * sensor values. The response will be paginated with a maximum of 50 records per page.
      *
-     * https://consumer-api-doc.airthings.com/api-docs#tag/Sensor
+     * @see https://consumer-api-doc.airthings.com/api-docs#tag/Sensor
      *
      * @param {SensorUnits} unit - The units type sensors values will be returned in
      * @param {string[]} sn - An optional list of serial numbers to filter the results

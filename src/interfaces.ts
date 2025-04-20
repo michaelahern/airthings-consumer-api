@@ -30,7 +30,7 @@ export interface AirthingsClientRateLimits {
 
 export interface Device {
     serialNumber: string;
-    home: string;
+    home?: string;
     name: string;
     type: string;
     sensors: string[];
@@ -50,7 +50,7 @@ export interface SensorResult {
     serialNumber: string;
     sensors: Sensor[];
     recorded?: string;
-    batteryPercentage: number;
+    batteryPercentage?: number;
 }
 
 export interface SensorResults {
