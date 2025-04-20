@@ -13,6 +13,9 @@ export class AirthingsClient {
     private opts: AirthingsClientOpts;
     private rateLimits: SensorResultsRateLimits;
 
+    /**
+     * @param opts - The options for the Airthings client, primarily client credentials
+     */
     constructor(opts: AirthingsClientOpts) {
         this.accessToken = null;
         this.opts = opts;
@@ -28,7 +31,9 @@ export class AirthingsClient {
      * that the accountId remains constant for Consumer users. The accountId returned by this
      * endpoint is used to fetch the devices and sensors from the other endpoints.
      *
-     * @see https://consumer-api-doc.airthings.com/api-docs#tag/Accounts
+     * @see [Airthings Consumer API: Accounts](https://consumer-api-doc.airthings.com/api-docs#tag/Accounts)
+     *
+     * @throws {Error} If the request fails
      */
     public async getAccounts(): Promise<Accounts> {
         const url = 'https://consumer-api.airthings.com/v1/accounts';
@@ -43,7 +48,9 @@ export class AirthingsClient {
      * List all devices (and their sensor abilities) connected to a user’s account. The data
      * returned by this endpoint changes when a device is registered, unregistered or renamed.
      *
-     * @see https://consumer-api-doc.airthings.com/api-docs#tag/Device
+     * @see [Airthings Consumer API: Devices](https://consumer-api-doc.airthings.com/api-docs#tag/Device)
+     *
+     * @throws {Error} If the request fails
      */
     public async getDevices(): Promise<Devices> {
         await this.#ensureAccountIdConfig();
@@ -62,11 +69,10 @@ export class AirthingsClient {
      * rate. It is recommended to poll the API at a regular interval to get the latest
      * sensor values. The response will be paginated with a maximum of 50 records per page.
      *
-     * @see https://consumer-api-doc.airthings.com/api-docs#tag/Sensor
+     * @see [Airthings Consumer API: Sensors](https://consumer-api-doc.airthings.com/api-docs#tag/Sensor)
      *
-     * @param {SensorUnits} unit - The units type sensors values will be returned in
-     * @param {string[]} sn - An optional list of serial numbers to filter the results
-     *
+     * @param unit - The units type sensor values will be returned in, metric or imperial
+     * @param sn - An optional list of serial numbers to filter the results
      * @throws {Error} If the request fails
      */
     public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
@@ -86,6 +92,11 @@ export class AirthingsClient {
         return await response.json() as SensorResults;
     }
 
+    /**
+     * Get rate limiting details from the last getSensors request
+     *
+     * @see [Airthings Consumer API: Rate Limits](https://consumer-api-doc.airthings.com/api-docs#section/Rate-Limits)
+     */
     public getRateLimits(): SensorResultsRateLimits {
         return this.rateLimits;
     }
@@ -167,7 +178,10 @@ interface AirthingsClientAccessToken {
 }
 
 export interface AirthingsClientOpts {
+    /**  Override the default Account ID */
     accountId?: string;
+    /**  Client ID created via the Airthings Dashboard */
     clientId: string;
+    /**  Client Secret created via the Airthings Dashboard */
     clientSecret: string;
 }
