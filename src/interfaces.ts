@@ -19,6 +19,15 @@ export interface AirthingsClientOpts {
     clientSecret: string;
 }
 
+export interface AirthingsClientRateLimits {
+    /** Request limit per hour. */
+    limit: number;
+    /** The number of requests left for the time window. */
+    remaining: number;
+    /** The timestamp at which the current rate limit window resets. */
+    reset: number;
+}
+
 export interface Device {
     serialNumber: string;
     home: string;

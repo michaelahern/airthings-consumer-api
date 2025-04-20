@@ -1,15 +1,34 @@
 import { SensorUnits } from './interfaces.js';
-import type { AccessToken, Accounts, AirthingsClientOpts, Devices, SensorResults } from './interfaces.js';
+import type { AccessToken, Accounts, AirthingsClientOpts, AirthingsClientRateLimits, Devices, SensorResults } from './interfaces.js';
 
+/**
+ * The Airthings for Consumer API provides secure and authorized access for Airthings
+ * consumers to retrieve the latest data from their Airthings air quality monitors. Leveraging
+ * HTTPS and OAuth for enhanced security, this API empowers users to seamlessly access
+ * real-time information from their Airthings devices, gaining valuable insights into the air
+ * quality within their environments.
+ */
 export class AirthingsClient {
     private accessToken: AccessToken | null;
     private opts: AirthingsClientOpts;
+    private rateLimits: AirthingsClientRateLimits;
 
     constructor(opts: AirthingsClientOpts) {
         this.accessToken = null;
         this.opts = opts;
+        this.rateLimits = { limit: -1, remaining: -1, reset: -1 };
     }
 
+    /**
+     * Lists all accounts the current user is member of. The data returned by this endpoint
+     * changes when a user is added or removed from business accounts. It is safe to assume
+     * that the accountId remains constant for Consumer users. The accountId returned by this
+     * endpoint is used to fetch the devices and sensors from the other endpoints.
+     *
+     * https://consumer-api-doc.airthings.com/api-docs#tag/Accounts
+     *
+     *
+     */
     public async getAccounts(): Promise<Accounts> {
         const url = 'https://consumer-api.airthings.com/v1/accounts';
         const response = await this.#handleFetch(url);
@@ -22,7 +41,7 @@ export class AirthingsClient {
      *
      * https://consumer-api-doc.airthings.com/api-docs#tag/Device
      *
-     * @returns A list of devices for the account. The response will contain a list of devices
+     * @returns A list of devices for the account.
      */
     public async getDevices(): Promise<Devices> {
         await this.#ensureAccountIdConfig();
@@ -40,8 +59,9 @@ export class AirthingsClient {
      *
      * https://consumer-api-doc.airthings.com/api-docs#tag/Sensor
      *
-     * unit - The units type sensors values will be returned in
-     * sn - An optional list of serial numbers to filter the results
+     * @param {SensorUnits} unit - The units type sensors values will be returned in
+     * @param {string[]} sn - An optional list of serial numbers to filter the results
+     * @throws {Error} If the request fails
      */
     public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
         await this.#ensureAccountIdConfig();
@@ -52,7 +72,16 @@ export class AirthingsClient {
         }
 
         const response = await this.#handleFetch(url);
+
+        this.rateLimits.limit = parseInt(response.headers.get('X-RateLimit-Limit') || '0');
+        this.rateLimits.remaining = parseInt(response.headers.get('X-RateLimit-Remaining') || '0');
+        this.rateLimits.reset = parseInt(response.headers.get('X-RateLimit-Reset') || '0');
+
         return await response.json() as SensorResults;
+    }
+
+    public getRateLimits(): AirthingsClientRateLimits {
+        return this.rateLimits;
     }
 
     async #ensureAccountIdConfig(): Promise<void> {

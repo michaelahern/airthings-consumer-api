@@ -25,6 +25,8 @@ async function main() {
     sensorsResponse.results.forEach((sensor) => {
         console.log(sensor);
     });
+
+    console.log(client.getRateLimits());
 }
 
 main().catch(err => console.error(err));
