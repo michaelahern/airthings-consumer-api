@@ -7,6 +7,8 @@ import type { Accounts, Devices, SensorResults, SensorResultsRateLimits } from '
  * HTTPS and OAuth for enhanced security, this API empowers users to seamlessly access
  * real-time information from their Airthings devices, gaining valuable insights into the air
  * quality within their environments.
+ * @module
+ * @disableGroups
  */
 export class AirthingsClient {
     private accessToken: AirthingsClientAccessToken | null;
