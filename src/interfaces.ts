@@ -14,9 +14,9 @@ export interface Accounts {
 }
 
 export interface AirthingsConfig {
-    account_id?: string;
-    client_id: string;
-    client_secret: string;
+    accountId?: string;
+    clientId: string;
+    clientSecret: string;
 }
 
 export interface Device {
@@ -40,7 +40,7 @@ export interface Sensor {
 export interface SensorResult {
     serialNumber: string;
     sensors: Sensor[];
-    recorded: string;
+    recorded?: string;
     batteryPercentage: number;
 }
 

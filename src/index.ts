@@ -5,113 +5,92 @@ export class Airthings {
     private accessToken: AccessToken | null;
     private config: AirthingsConfig;
 
-    constructor(airthingsConfig: AirthingsConfig) {
+    constructor(config: AirthingsConfig) {
         this.accessToken = null;
-        this.config = airthingsConfig;
+        this.config = config;
     }
 
     public async getAccounts(): Promise<Accounts> {
-        await this.refreshAccessToken();
-
-        if (!this.accessToken) {
-            throw new Error('No access token');
-        }
-
-        const response = await fetch('https://consumer-api.airthings.com/v1/accounts', {
-            headers: {
-                Authorization: `${this.accessToken.type} ${this.accessToken.token}`
-            }
-        });
-
-        await this.checkResponseError(response);
-
+        const url = 'https://consumer-api.airthings.com/v1/accounts';
+        const response = await this.#handleFetch(url);
         return await response.json() as Accounts;
     }
 
     public async getDevices(): Promise<Devices> {
-        await this.refreshAccessToken();
-        await this.checkAccountId();
+        await this.#ensureAccountIdConfig();
 
-        if (!this.accessToken) {
-            throw new Error('No access token');
+        const url = `https://consumer-api.airthings.com/v1/accounts/${this.config.accountId}/devices`;
+        const response = await this.#handleFetch(url);
+        return await response.json() as Devices;
+    }
+
+    public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
+        await this.#ensureAccountIdConfig();
+
+        let url = `https://consumer-api.airthings.com/v1/accounts/${this.config.accountId}/sensors?unit=${SensorUnits[unit].toLowerCase()}`;
+        if (sn && sn.length > 0) {
+            url += `&sn=${sn.join(',')}`;
         }
 
-        const response = await fetch(`https://consumer-api.airthings.com/v1/accounts/${this.config.account_id}/devices`, {
+        const response = await this.#handleFetch(url);
+        return await response.json() as SensorResults;
+    }
+
+    async #ensureAccountIdConfig(): Promise<void> {
+        if (!this.config.accountId) {
+            const accountsResponse = await this.getAccounts();
+            if (accountsResponse.accounts.length > 0) {
+                this.config.accountId = accountsResponse.accounts[0].id;
+            }
+            else {
+                throw new Error('Airthings: No Account ID');
+            }
+        }
+    }
+
+    async #handleFetch(url: string): Promise<Response> {
+        await this.#refreshAccessToken();
+
+        if (!this.accessToken) {
+            throw new Error('Airthings: No Access Token');
+        }
+
+        const response = await fetch(url, {
             headers: {
                 Authorization: `${this.accessToken.type} ${this.accessToken.token}`
             }
         });
 
-        await this.checkResponseError(response);
+        await this.#handleFetchResponseError(response);
 
-        return await response.json() as Devices;
+        return response;
     }
 
-    public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
-        await this.refreshAccessToken();
-        await this.checkAccountId();
-
-        if (!this.accessToken) {
-            throw new Error('No access token');
-        }
-
-        let snQueryString = '';
-        if (sn && sn.length > 0) {
-            snQueryString = `sn=${sn.join(',')}&`;
-        }
-
-        console.log(`https://consumer-api.airthings.com/v1/accounts/${this.config.account_id}/sensors?${snQueryString}unit=${SensorUnits[unit].toLowerCase()}`);
-
-        const response = await fetch(`https://consumer-api.airthings.com/v1/accounts/${this.config.account_id}/sensors?${snQueryString}unit=${SensorUnits[unit].toLowerCase()}`, {
-            headers: {
-                Authorization: `Bearer ${this.accessToken.token}`
-            }
-        });
-
-        await this.checkResponseError(response);
-
-        return await response.json() as SensorResults;
-    }
-
-    private async checkAccountId(): Promise<void> {
-        if (!this.config.account_id) {
-            const accounts = await this.getAccounts();
-            if (accounts.accounts.length > 0) {
-                this.config.account_id = accounts.accounts[0].id;
-            }
-        }
-    }
-
-    private async checkResponseError(response: Response): Promise<void> {
+    async #handleFetchResponseError(response: Response): Promise<void> {
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Airthings API Error -> Status Code: ${response.status}, Error: ${errorText}`);
+            throw new Error(`Airthings: Request Error [${response.status}: ${await response.text()}]`);
         }
     }
 
-    private async refreshAccessToken(): Promise<void> {
-        if (this.accessToken && this.accessToken.expiresAt - 300 > Date.now()) {
+    async #refreshAccessToken(): Promise<void> {
+        if (this.accessToken && this.accessToken.expiresAt + (5 * 60 * 1000) > Date.now()) {
             return;
         }
-
-        const authorization = Buffer.from(`${this.config.client_id}:${this.config.client_secret}`).toString('base64');
-
-        const body = JSON.stringify({
-            grant_type: 'client_credentials'
-        });
 
         const response = await fetch(`https://accounts-api.airthings.com/v1/token`,
             {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Basic ${authorization}`,
+                    'Authorization': `Basic ${Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString('base64')}`,
                     'Content-Type': 'application/json'
                 },
-                body: body
+                body: JSON.stringify({
+                    grant_type: 'client_credentials'
+                })
             }
         );
 
-        await this.checkResponseError(response);
+        await this.#handleFetchResponseError(response);
 
         const data = await response.json() as {
             access_token: string;

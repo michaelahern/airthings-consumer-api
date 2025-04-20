@@ -1,24 +1,30 @@
+#!/usr/bin/env node
 import { Airthings } from './index.js';
 import { SensorUnits } from './interfaces.js';
 
 async function main() {
+    const clientId = process.env.AIRTHINGS_CLIENT_ID;
+    const clientSecret = process.env.AIRTHINGS_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+        console.error('Please set the AIRTHINGS_CLIENT_ID and AIRTHINGS_CLIENT_SECRET environment variables.');
+        process.exit(1);
+    }
+
     const client = new Airthings({
-        client_id: process.env.AIRTHINGS_CLIENT_ID ?? '',
-        client_secret: process.env.AIRTHINGS_CLIENT_SECRET ?? ''
+        clientId: clientId,
+        clientSecret: clientSecret
     });
 
-    const accounts = await client.getAccounts();
-    console.log(accounts);
-    console.log(accounts.accounts[0].id);
+    const devicesResponse = await client.getDevices();
+    devicesResponse.devices.forEach((device) => {
+        console.log(device);
+    });
 
-    const devices = await client.getDevices();
-    console.log(devices);
-    console.log(devices.devices[0].sensors);
-
-    const sensors = await client.getSensors(SensorUnits.Metric);
-    console.log(sensors);
-    console.log(sensors.results[1]);
-    console.log(sensors.results[1].sensors);
+    const sensorsResponse = await client.getSensors(SensorUnits.Imperial);
+    sensorsResponse.results.forEach((sensor) => {
+        console.log(sensor);
+    });
 }
 
 main().catch(err => console.error(err));
