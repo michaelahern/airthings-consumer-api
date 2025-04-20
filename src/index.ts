@@ -1,119 +1,125 @@
-import type { AccessToken, Accounts, AirthingsConfiguration, Devices } from './interfaces.js';
+import { SensorUnits } from './interfaces.js';
+import type { AccessToken, Accounts, AirthingsConfig, Devices, SensorResults } from './interfaces.js';
 
 export class Airthings {
-    private config: AirthingsConfiguration;
     private accessToken: AccessToken | null;
+    private config: AirthingsConfig;
 
-    constructor(configuration: AirthingsConfiguration) {
-        this.config = configuration;
+    constructor(configuration: AirthingsConfig) {
         this.accessToken = null;
+        this.config = configuration;
     }
 
     public async getAccounts(): Promise<Accounts> {
-        if (this.isTokenExpired()) {
-            await this.updateToken();
-        }
+        await this.refreshAccessToken();
 
         if (!this.accessToken) {
             throw new Error('No access token');
         }
 
-        try {
-            const response = await fetch('https://consumer-api.airthings.com/v1/accounts', {
-                headers: {
-                    Authorization: `Bearer ${this.accessToken.token}`
-                }
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+        const response = await fetch('https://consumer-api.airthings.com/v1/accounts', {
+            headers: {
+                Authorization: `${this.accessToken.type} ${this.accessToken.token}`
             }
+        });
 
-            return await response.json() as Accounts;
-        }
-        catch (error) {
-            throw error;
-        }
+        await this.checkResponseError(response);
+
+        return await response.json() as Accounts;
     }
 
     public async getDevices(): Promise<Devices> {
-        var accounts = await this.getAccounts();
+        const accounts = await this.getAccounts();
         return await this.getDevicesByAccountId(accounts.accounts[0].id);
     }
 
     public async getDevicesByAccountId(accountId: string): Promise<Devices> {
-        if (this.isTokenExpired()) {
-            await this.updateToken();
-        }
+        await this.refreshAccessToken();
 
         if (!this.accessToken) {
             throw new Error('No access token');
         }
 
-        try {
-            const response = await fetch(`https://consumer-api.airthings.com/v1/accounts/${accountId}/devices`, {
-                headers: {
-                    Authorization: `Bearer ${this.accessToken.token}`
-                }
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+        const response = await fetch(`https://consumer-api.airthings.com/v1/accounts/${accountId}/devices`, {
+            headers: {
+                Authorization: `${this.accessToken.type} ${this.accessToken.token}`
             }
+        });
 
-            return await response.json() as Devices;
+        await this.checkResponseError(response);
+
+        return await response.json() as Devices;
+    }
+
+    public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
+        await this.refreshAccessToken();
+
+        if (!this.accessToken) {
+            throw new Error('No access token');
         }
-        catch (error) {
-            throw error;
+
+        const accounts = await this.getAccounts();
+        const accountId = accounts.accounts[0].id;
+
+        let snQueryString = '';
+        if (sn && sn.length > 0) {
+            snQueryString = `sn=${sn.join(',')}&`;
+        }
+
+        console.log(`https://consumer-api.airthings.com/v1/accounts/${accountId}/sensors?${snQueryString}unit=${SensorUnits[unit].toLowerCase()}`);
+
+        const response = await fetch(`https://consumer-api.airthings.com/v1/accounts/${accountId}/sensors?${snQueryString}unit=${SensorUnits[unit].toLowerCase()}`, {
+            headers: {
+                Authorization: `Bearer ${this.accessToken.token}`
+            }
+        });
+
+        await this.checkResponseError(response);
+
+        return await response.json() as SensorResults;
+    }
+
+    private async checkResponseError(response: Response): Promise<void> {
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Airthings API Error -> Status Code: ${response.status}, Error: ${errorText}`);
         }
     }
 
-    private isTokenExpired(): boolean {
-        if (!this.accessToken) return true;
+    private async refreshAccessToken(): Promise<void> {
+        if (this.accessToken && this.accessToken.expiresAt - 300 > Date.now()) {
+            return;
+        }
 
-        return this.accessToken.expiresAt - 15 < Date.now();
-    }
+        const authorization = Buffer.from(`${this.config.id}:${this.config.secret}`).toString('base64');
 
-    private async updateToken(): Promise<void> {
         const body = JSON.stringify({
             grant_type: 'client_credentials'
         });
 
-        const authorization = Buffer.from(`${this.config.id}:${this.config.secret}`).toString('base64');
-
-        try {
-            const response = await fetch(`https://accounts-api.airthings.com/v1/token`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Basic ${authorization}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: body
-                }
-            )
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+        const response = await fetch(`https://accounts-api.airthings.com/v1/token`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${authorization}`,
+                    'Content-Type': 'application/json'
+                },
+                body: body
             }
+        );
 
-            const data = await response.json() as {
-                access_token: string;
-                token_type: string;
-                expires_in: number;
-            };
+        await this.checkResponseError(response);
 
-            this.accessToken = {
-                token: data.access_token,
-                type: data.token_type,
-                expiresAt: data.expires_in + Date.now()
-            };
-        }
-        catch (error) {
-            throw error;
-        }
+        const data = await response.json() as {
+            access_token: string;
+            token_type: string;
+            expires_in: number;
+        };
+
+        this.accessToken = {
+            token: data.access_token,
+            type: data.token_type,
+            expiresAt: data.expires_in * 1000 + Date.now()
+        };
     }
 }
