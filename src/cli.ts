@@ -3,8 +3,8 @@ import { SensorUnits } from './interfaces.js';
 
 async function main() {
     const client = new Airthings({
-        id: process.env.AIRTHINGS_CLIENT_ID ?? '',
-        secret: process.env.AIRTHINGS_CLIENT_SECRET ?? ''
+        client_id: process.env.AIRTHINGS_CLIENT_ID ?? '',
+        client_secret: process.env.AIRTHINGS_CLIENT_SECRET ?? ''
     });
 
     const accounts = await client.getAccounts();
@@ -17,8 +17,8 @@ async function main() {
 
     const sensors = await client.getSensors(SensorUnits.Metric);
     console.log(sensors);
-    console.log(sensors.results[0]);
-    console.log(sensors.results[0].sensors);
+    console.log(sensors.results[1]);
+    console.log(sensors.results[1].sensors);
 }
 
 main().catch(err => console.error(err));

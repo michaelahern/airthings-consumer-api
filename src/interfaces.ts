@@ -13,8 +13,9 @@ export interface Accounts {
 }
 
 export interface AirthingsConfig {
-    id: string;
-    secret: string;
+    account_id?: string;
+    client_id: string;
+    client_secret: string;
 }
 
 export interface Device {
