@@ -33,7 +33,7 @@
     "lint-fix": "npm run eslint-fix",
     "fmt": "npm run lint-fix",
     "build": "tsc",
-    "docs": "typedoc --out docs src/index.ts src/interfaces.ts",
+    "docs": "typedoc --out docs src/index.ts src/schemas.ts",
     "clean": "rimraf ./dist",
     "prepublishOnly": "npm run lint && npm run build",
     "cli": "npm run build && node dist/cli.js"

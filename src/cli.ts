@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { AirthingsClient } from './index.js';
-import { SensorUnits } from './interfaces.js';
+import { SensorUnits } from './schemas.js';
 
 async function main() {
     const clientId = process.env.AIRTHINGS_CLIENT_ID;

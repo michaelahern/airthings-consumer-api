@@ -1,5 +1,5 @@
-import { SensorUnits } from './interfaces.js';
-import type { AccessToken, Accounts, AirthingsClientOpts, AirthingsClientRateLimits, Devices, SensorResults } from './interfaces.js';
+import { SensorUnits } from './schemas.js';
+import type { Accounts, Devices, SensorResults, SensorResultsRateLimits } from './schemas.js';
 
 /**
  * The Airthings for Consumer API provides secure and authorized access for Airthings
@@ -9,9 +9,9 @@ import type { AccessToken, Accounts, AirthingsClientOpts, AirthingsClientRateLim
  * quality within their environments.
  */
 export class AirthingsClient {
-    private accessToken: AccessToken | null;
+    private accessToken: AirthingsClientAccessToken | null;
     private opts: AirthingsClientOpts;
-    private rateLimits: AirthingsClientRateLimits;
+    private rateLimits: SensorResultsRateLimits;
 
     constructor(opts: AirthingsClientOpts) {
         this.accessToken = null;
@@ -44,8 +44,6 @@ export class AirthingsClient {
      * returned by this endpoint changes when a device is registered, unregistered or renamed.
      *
      * @see https://consumer-api-doc.airthings.com/api-docs#tag/Device
-     *
-     * @returns A list of devices for the account.
      */
     public async getDevices(): Promise<Devices> {
         await this.#ensureAccountIdConfig();
@@ -68,6 +66,7 @@ export class AirthingsClient {
      *
      * @param {SensorUnits} unit - The units type sensors values will be returned in
      * @param {string[]} sn - An optional list of serial numbers to filter the results
+     *
      * @throws {Error} If the request fails
      */
     public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
@@ -87,7 +86,7 @@ export class AirthingsClient {
         return await response.json() as SensorResults;
     }
 
-    public getRateLimits(): AirthingsClientRateLimits {
+    public getRateLimits(): SensorResultsRateLimits {
         return this.rateLimits;
     }
 
@@ -159,4 +158,16 @@ export class AirthingsClient {
             expires: tokenData.expires_in * 1000 + Date.now()
         };
     }
+}
+
+interface AirthingsClientAccessToken {
+    token: string;
+    type: string;
+    expires: number;
+}
+
+export interface AirthingsClientOpts {
+    accountId?: string;
+    clientId: string;
+    clientSecret: string;
 }

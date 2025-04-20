@@ -1,31 +1,9 @@
-/** @ignore */
-export interface AccessToken {
-    token: string;
-    type: string;
-    expires: number;
-}
-
 export interface Account {
     id: string;
 }
 
 export interface Accounts {
     accounts: Account[];
-}
-
-export interface AirthingsClientOpts {
-    accountId?: string;
-    clientId: string;
-    clientSecret: string;
-}
-
-export interface AirthingsClientRateLimits {
-    /** Request limit per hour. */
-    limit: number;
-    /** The number of requests left for the time window. */
-    remaining: number;
-    /** The timestamp at which the current rate limit window resets. */
-    reset: number;
 }
 
 export interface Device {
@@ -57,6 +35,15 @@ export interface SensorResults {
     results: SensorResult[];
     hasNext: boolean;
     totalPages: number;
+}
+
+export interface SensorResultsRateLimits {
+    /** Request limit per hour. */
+    limit: number;
+    /** The number of requests left for the time window. */
+    remaining: number;
+    /** The timestamp at which the current rate limit window resets. */
+    reset: number;
 }
 
 export enum SensorUnits {
