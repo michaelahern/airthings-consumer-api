@@ -1,13 +1,13 @@
 import { SensorUnits } from './interfaces.js';
-import type { AccessToken, Accounts, AirthingsConfig, Devices, SensorResults } from './interfaces.js';
+import type { AccessToken, Accounts, AirthingsClientOpts, Devices, SensorResults } from './interfaces.js';
 
-export class Airthings {
+export class AirthingsClient {
     private accessToken: AccessToken | null;
-    private config: AirthingsConfig;
+    private opts: AirthingsClientOpts;
 
-    constructor(config: AirthingsConfig) {
+    constructor(opts: AirthingsClientOpts) {
         this.accessToken = null;
-        this.config = config;
+        this.opts = opts;
     }
 
     public async getAccounts(): Promise<Accounts> {
@@ -16,18 +16,37 @@ export class Airthings {
         return await response.json() as Accounts;
     }
 
+    /**
+     * List all devices (and their sensor abilities) connected to a user’s account. The data
+     * returned by this endpoint changes when a device is registered, unregistered or renamed.
+     *
+     * https://consumer-api-doc.airthings.com/api-docs#tag/Device
+     *
+     * @returns A list of devices for the account. The response will contain a list of devices
+     */
     public async getDevices(): Promise<Devices> {
         await this.#ensureAccountIdConfig();
 
-        const url = `https://consumer-api.airthings.com/v1/accounts/${this.config.accountId}/devices`;
+        const url = `https://consumer-api.airthings.com/v1/accounts/${this.opts.accountId}/devices`;
         const response = await this.#handleFetch(url);
         return await response.json() as Devices;
     }
 
+    /**
+     * Get sensors for a set of devices. The response will contain the latest sensor values for
+     * the devices. The sensor values are updated depending on the device types sampling
+     * rate. It is recommended to poll the API at a regular interval to get the latest
+     * sensor values. The response will be paginated with a maximum of 50 records per page.
+     *
+     * https://consumer-api-doc.airthings.com/api-docs#tag/Sensor
+     *
+     * unit - The units type sensors values will be returned in
+     * sn - An optional list of serial numbers to filter the results
+     */
     public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
         await this.#ensureAccountIdConfig();
 
-        let url = `https://consumer-api.airthings.com/v1/accounts/${this.config.accountId}/sensors?unit=${SensorUnits[unit].toLowerCase()}`;
+        let url = `https://consumer-api.airthings.com/v1/accounts/${this.opts.accountId}/sensors?unit=${SensorUnits[unit].toLowerCase()}`;
         if (sn && sn.length > 0) {
             url += `&sn=${sn.join(',')}`;
         }
@@ -37,10 +56,10 @@ export class Airthings {
     }
 
     async #ensureAccountIdConfig(): Promise<void> {
-        if (!this.config.accountId) {
+        if (!this.opts.accountId) {
             const accountsResponse = await this.getAccounts();
             if (accountsResponse.accounts.length > 0) {
-                this.config.accountId = accountsResponse.accounts[0].id;
+                this.opts.accountId = accountsResponse.accounts[0].id;
             }
             else {
                 throw new Error('Airthings: No Account ID');
@@ -73,7 +92,7 @@ export class Airthings {
     }
 
     async #refreshAccessToken(): Promise<void> {
-        if (this.accessToken && this.accessToken.expiresAt + (5 * 60 * 1000) > Date.now()) {
+        if (this.accessToken && this.accessToken.expires + (5 * 60 * 1000) > Date.now()) {
             return;
         }
 
@@ -81,7 +100,7 @@ export class Airthings {
             {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Basic ${Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString('base64')}`,
+                    'Authorization': `Basic ${Buffer.from(`${this.opts.clientId}:${this.opts.clientSecret}`).toString('base64')}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -92,16 +111,16 @@ export class Airthings {
 
         await this.#handleFetchResponseError(response);
 
-        const data = await response.json() as {
+        const tokenData = await response.json() as {
             access_token: string;
             token_type: string;
             expires_in: number;
         };
 
         this.accessToken = {
-            token: data.access_token,
-            type: data.token_type,
-            expiresAt: data.expires_in * 1000 + Date.now()
+            token: tokenData.access_token,
+            type: tokenData.token_type,
+            expires: tokenData.expires_in * 1000 + Date.now()
         };
     }
 }

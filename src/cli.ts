@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Airthings } from './index.js';
+import { AirthingsClient } from './index.js';
 import { SensorUnits } from './interfaces.js';
 
 async function main() {
@@ -11,7 +11,7 @@ async function main() {
         process.exit(1);
     }
 
-    const client = new Airthings({
+    const client = new AirthingsClient({
         clientId: clientId,
         clientSecret: clientSecret
     });

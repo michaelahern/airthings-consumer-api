@@ -2,7 +2,7 @@
 export interface AccessToken {
     token: string;
     type: string;
-    expiresAt: number;
+    expires: number;
 }
 
 export interface Account {
@@ -13,7 +13,7 @@ export interface Accounts {
     accounts: Account[];
 }
 
-export interface AirthingsConfig {
+export interface AirthingsClientOpts {
     accountId?: string;
     clientId: string;
     clientSecret: string;
