@@ -18,12 +18,33 @@ export interface Devices {
     devices: Device[];
 }
 
+/**
+ * @example
+ * ```json
+ * { sensorType: 'temp', value: 64.1, unit: 'f' }
+ * ```
+ */
 export interface Sensor {
     sensorType: string;
     value: number;
     unit: string;
 }
 
+/**
+ * @example
+ * ```json
+ * {
+ *   serialNumber: '2960000000',
+ *   sensors: [
+ *     { sensorType: 'humidity', value: 40, unit: 'pct' },
+ *     { sensorType: 'temp', value: 68, unit: 'f' },
+ *     ...
+ *   ],
+ *   recorded: '2025-01-01T00:00:00',
+ *   batteryPercentage: 100
+ * }
+ * ```
+ */
 export interface SensorResult {
     serialNumber: string;
     sensors: Sensor[];
