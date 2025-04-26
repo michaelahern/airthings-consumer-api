@@ -2,7 +2,7 @@
   "name": "airthings-consumer-api",
   "displayName": "Airthings Consumer API",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.0",
   "description": "Airthings Consumer API",
   "keywords": [
     "airthings"
@@ -27,12 +27,12 @@
     "url": "git://github.com/michaelahern/airthings-consumer-api.git"
   },
   "scripts": {
-    "eslint": "eslint src/**.ts --max-warnings=0",
-    "eslint-fix": "eslint src/**.ts --max-warnings=0 --fix",
+    "eslint": "eslint src/**/*.ts --max-warnings=0",
+    "eslint-fix": "eslint src/**/*.ts --max-warnings=0 --fix",
     "lint": "npm run eslint",
     "lint-fix": "npm run eslint-fix",
     "fmt": "npm run lint-fix",
-    "build": "tsc",
+    "build": "npm run clean && tsc",
     "docs": "typedoc",
     "clean": "rimraf ./dist",
     "prepublishOnly": "npm run lint && npm run build",
