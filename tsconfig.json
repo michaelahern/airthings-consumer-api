@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
+    "module": "node18",
     "target": "es2022",
-    "module": "nodenext",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": "src",
-    "strict": true,
-    "forceConsistentCasingInFileNames": true
+    "strict": true
   },
   "include": ["src/**/*"]
 }
