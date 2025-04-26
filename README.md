@@ -28,10 +28,43 @@ async function main() {
         console.log(device);
     });
 
+    // {
+    //   serialNumber: '2960000000',
+    //   home: 'My Home',
+    //   name: 'My Airthings',
+    //   type: 'VIEW_PLUS',
+    //   sensors: [
+    //     'radonShortTermAvg',
+    //     'temp',
+    //     'humidity',
+    //     'pressure',
+    //     'co2',
+    //     'voc',
+    //     'pm1',
+    //     'pm25'
+    //   ]
+    // }
+
     const sensorsResponse = await client.getSensors(SensorUnits.Imperial);
     sensorsResponse.results.forEach((sensor) => {
         console.log(sensor);
     });
+
+    // {
+    //   serialNumber: '2960000000',
+    //   sensors: [
+    //     { sensorType: 'radonShortTermAvg', value: 1., unit: 'pci' },
+    //     { sensorType: 'humidity', value: 40, unit: 'pct' },
+    //     { sensorType: 'temp', value: 68.8, unit: 'f' },
+    //     { sensorType: 'co2', value: 678, unit: 'ppm' },
+    //     { sensorType: 'voc', value: 234, unit: 'ppb' },
+    //     { sensorType: 'pressure', value: 78178, unit: 'pa' },
+    //     { sensorType: 'pm25', value: 0, unit: 'mgpc' },
+    //     { sensorType: 'pm1', value: 0, unit: 'mgpc' }
+    //   ],
+    //   recorded: '2025-01-01T12:34:56',
+    //   batteryPercentage: 100
+    // }
 }
 
 main().catch(err => console.error(err));
