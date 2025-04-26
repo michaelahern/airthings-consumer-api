@@ -21,7 +21,7 @@ export interface Devices {
 /**
  * @example
  * ```json
- * { sensorType: 'temp', value: 64.1, unit: 'f' }
+ * { sensorType: 'temp', value: 68.1, unit: 'f' }
  * ```
  */
 export interface Sensor {
@@ -37,7 +37,7 @@ export interface Sensor {
  *   serialNumber: '2960000000',
  *   sensors: [
  *     { sensorType: 'humidity', value: 40, unit: 'pct' },
- *     { sensorType: 'temp', value: 68, unit: 'f' },
+ *     { sensorType: 'temp', value: 68.1, unit: 'f' },
  *     ...
  *   ],
  *   recorded: '2025-01-01T00:00:00',
