@@ -53,7 +53,7 @@ async function main() {
     // {
     //   serialNumber: '2960000000',
     //   sensors: [
-    //     { sensorType: 'radonShortTermAvg', value: 1., unit: 'pci' },
+    //     { sensorType: 'radonShortTermAvg', value: 1.2, unit: 'pci' },
     //     { sensorType: 'humidity', value: 40, unit: 'pct' },
     //     { sensorType: 'temp', value: 68.8, unit: 'f' },
     //     { sensorType: 'co2', value: 678, unit: 'ppm' },
