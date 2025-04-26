@@ -1,17 +1,14 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
     "target": "es2022",
-    "esModuleInterop": true,
-    "strict": true,
-    "verbatimModuleSyntax": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
+    "module": "nodenext",
     "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "outDir": "dist",
     "rootDir": "src",
-    "sourceMap": true,
-    "declarationMap": true
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"]
 }
