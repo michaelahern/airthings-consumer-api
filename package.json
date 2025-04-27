@@ -3,7 +3,7 @@
   "displayName": "Airthings Consumer API",
   "type": "module",
   "version": "0.2.0",
-  "description": "Airthings Consumer API",
+  "description": "A Node.js client library for the Airthings Consumer API.",
   "keywords": [
     "airthings"
   ],

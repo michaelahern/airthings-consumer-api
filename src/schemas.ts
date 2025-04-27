@@ -6,6 +6,21 @@ export interface Accounts {
     accounts: Account[];
 }
 
+/**
+ * @example
+ * ```json
+ * {
+ *   serialNumber: '2960000000',
+ *   home: 'My Home',
+ *   name: 'My Airthings',
+ *   type: 'VIEW_PLUS',
+ *   sensors: [
+ *     'temp',
+ *     'humidity',
+ *     ...
+ *   ]
+ * }
+ */
 export interface Device {
     serialNumber: string;
     home?: string;
@@ -36,8 +51,8 @@ export interface Sensor {
  * {
  *   serialNumber: '2960000000',
  *   sensors: [
- *     { sensorType: 'humidity', value: 40, unit: 'pct' },
  *     { sensorType: 'temp', value: 68.1, unit: 'f' },
+ *     { sensorType: 'humidity', value: 40, unit: 'pct' },
  *     ...
  *   ],
  *   recorded: '2025-01-01T00:00:00',
@@ -58,12 +73,12 @@ export interface SensorResults {
     totalPages: number;
 }
 
-export interface SensorResultsRateLimits {
-    /** Request limit per hour. */
+export interface SensorResultsRateLimitMetrics {
+    /** X-RateLimit-Limit: Request limit per hour. */
     limit: number;
-    /** The number of requests left for the time window. */
+    /** X-RateLimit-Remaining: The number of requests left for the time window. */
     remaining: number;
-    /** The timestamp at which the current rate limit window resets. */
+    /** X-RateLimit-Reset: The timestamp at which the current rate limit window resets. */
     reset: number;
 }
 

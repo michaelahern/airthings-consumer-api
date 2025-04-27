@@ -1,6 +1,9 @@
 {
     "$schema": "https://typedoc.org/schema.json",
     "entryPoints": ["./src/index.ts"],
-    "name": "Documentation",
-    "out": "docs"
+    "name": "Airthings Consumer API",
+    "out": "docs",
+    "sort": [
+        "source-order"
+    ]
 }
