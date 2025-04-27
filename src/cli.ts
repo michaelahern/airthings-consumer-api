@@ -25,7 +25,7 @@ async function main() {
         console.log(sensor);
     });
 
-    console.log(client.getRateLimits());
+    console.log(client.getSensorsRateLimitMetrics());
 }
 
 main().catch(err => console.error(err));

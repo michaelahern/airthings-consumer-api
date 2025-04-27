@@ -1,10 +1,10 @@
-# Airthings Consumer API
+# Airthings Consumer API Client
 
 [![npm](https://badgen.net/npm/v/airthings-consumer-api)](https://www.npmjs.com/package/airthings-consumer-api)
 [![npm](https://badgen.net/npm/dt/airthings-consumer-api)](https://www.npmjs.com/package/airthings-consumer-api)
 [![node](https://badgen.net/npm/node/airthings-consumer-api)](https://www.npmjs.com/package/airthings-consumer-api)
 [![types](https://badgen.net/npm/types/airthings-consumer-api)](https://www.npmjs.com/package/airthings-consumer-api)
-[![Build](https://github.com/michaelahern/airthings-consumer-api/actions/workflows/build.yml/badge.svg)](https://github.com/michaelahern/airthings-consumer-api/actions/workflows/build.yml)
+[![build](https://github.com/michaelahern/airthings-consumer-api/actions/workflows/build.yml/badge.svg)](https://github.com/michaelahern/airthings-consumer-api/actions/workflows/build.yml)
 
 A Node.js client library for the [Airthings Consumer API](https://consumer-api-doc.airthings.com/) .
 
@@ -20,10 +20,12 @@ $ npm install airthings-consumer-api
 
 ## Example
 
-```typescript
+```javascript
 import { AirthingsClient, SensorUnits } from 'airthings-consumer-api';
 
 async function main() {
+    // Create an Airthings Client ID & Secret at
+    // https://consumer-api-doc.airthings.com/dashboard
     const client = new AirthingsClient({
         clientId: 'clientId',
         clientSecret: 'clientSecret'

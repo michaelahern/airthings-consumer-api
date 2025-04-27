@@ -1,5 +1,5 @@
 import { SensorUnits } from './schemas.js';
-import type { Accounts, Devices, SensorResults, SensorResultsRateLimits } from './schemas.js';
+import type { Accounts, Devices, SensorResults, SensorResultsRateLimitMetrics } from './schemas.js';
 
 /**
  * The Airthings for Consumer API provides secure and authorized access for Airthings
@@ -11,15 +11,26 @@ import type { Accounts, Devices, SensorResults, SensorResultsRateLimits } from '
 export class AirthingsClient {
     private accessToken: AirthingsClientAccessToken | null;
     private opts: AirthingsClientOpts;
-    private rateLimits: SensorResultsRateLimits;
+    private rateLimitMetrics: SensorResultsRateLimitMetrics;
 
     /**
      * @param opts - The options for the Airthings client, primarily client credentials
+     *
+     * @remarks
+     * Create an Airthings Client ID & Secret at https://consumer-api-doc.airthings.com/dashboard
+     *
+     * @example
+     * ```javascript
+     * const client = new AirthingsClient({
+     *     clientId: 'clientId',
+     *     clientSecret: 'clientSecret'
+     * });
+     * ```
      */
     constructor(opts: AirthingsClientOpts) {
         this.accessToken = null;
         this.opts = opts;
-        this.rateLimits = { limit: -1, remaining: -1, reset: -1 };
+        this.rateLimitMetrics = { limit: -1, remaining: -1, reset: -1 };
     }
 
     /**
@@ -51,6 +62,14 @@ export class AirthingsClient {
      * @see [Airthings Consumer API: Devices](https://consumer-api-doc.airthings.com/api-docs#tag/Device)
      *
      * @throws {Error} If the request fails
+     *
+     * @example
+     * ```javascript
+     * const devicesResponse = await client.getDevices();
+     * devicesResponse.devices.forEach((device) => {
+     *   console.log(device);
+     * });
+     * ```
      */
     public async getDevices(): Promise<Devices> {
         await this.#ensureAccountIdConfig();
@@ -63,6 +82,9 @@ export class AirthingsClient {
     /**
      * Get sensors for a set of devices
      *
+     * @param unit - The units type sensor values will be returned in, metric or imperial
+     * @param sn - An optional list of serial numbers to filter the results
+     *
      * @remarks
      * Get sensors for a set of devices. The response will contain the latest sensor values for
      * the devices. The sensor values are updated depending on the device types sampling
@@ -71,9 +93,15 @@ export class AirthingsClient {
      *
      * @see [Airthings Consumer API: Sensors](https://consumer-api-doc.airthings.com/api-docs#tag/Sensor)
      *
-     * @param unit - The units type sensor values will be returned in, metric or imperial
-     * @param sn - An optional list of serial numbers to filter the results
      * @throws {Error} If the request fails
+     *
+     * @example
+     * ```javascript
+     * const sensorsResponse = await client.getSensors(SensorUnits.Imperial);
+     * sensorsResponse.results.forEach((sensor) => {
+     *   console.log(sensor);
+     * });
+     * ```
      */
     public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
         await this.#ensureAccountIdConfig();
@@ -85,20 +113,20 @@ export class AirthingsClient {
 
         const response = await this.#handleFetch(url);
 
-        this.rateLimits.limit = parseInt(response.headers.get('X-RateLimit-Limit') || '0');
-        this.rateLimits.remaining = parseInt(response.headers.get('X-RateLimit-Remaining') || '0');
-        this.rateLimits.reset = parseInt(response.headers.get('X-RateLimit-Reset') || '0');
+        this.rateLimitMetrics.limit = parseInt(response.headers.get('X-RateLimit-Limit') || '-1');
+        this.rateLimitMetrics.remaining = parseInt(response.headers.get('X-RateLimit-Remaining') || '-1');
+        this.rateLimitMetrics.reset = parseInt(response.headers.get('X-RateLimit-Reset') || '-1');
 
         return await response.json() as SensorResults;
     }
 
     /**
-     * Get rate limiting details from the last getSensors request
+     * Get rate limit metrics from the last getSensors request
      *
-     * @see [Airthings Consumer API: Rate Limits](https://consumer-api-doc.airthings.com/api-docs#section/Rate-Limits)
+     * @see [Airthings Consumer API: Rate Limits](https://consumer-api-doc.airthings.com/docs/api/rate-limit)
      */
-    public getRateLimits(): SensorResultsRateLimits {
-        return this.rateLimits;
+    public getSensorsRateLimitMetrics(): SensorResultsRateLimitMetrics {
+        return this.rateLimitMetrics;
     }
 
     async #ensureAccountIdConfig(): Promise<void> {
