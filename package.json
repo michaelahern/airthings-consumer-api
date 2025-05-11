@@ -1,8 +1,8 @@
 {
   "name": "airthings-consumer-api",
-  "displayName": "Airthings Consumer API",
-  "version": "0.4.0",
-  "description": "A unofficial Node.js client library for the Airthings Consumer API.",
+  "displayName": "Airthings Consumer API Client",
+  "version": "1.0.0",
+  "description": "An unofficial Node.js client library for the Airthings Consumer API.",
   "keywords": [
     "airthings"
   ],
