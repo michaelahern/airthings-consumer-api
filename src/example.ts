@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { AirthingsClient, SensorUnits } from './index.js';
+import { AirthingsClient, SensorUnits } from './module.js';
 
 async function main() {
     const clientId = process.env.AIRTHINGS_CLIENT_ID;
@@ -20,7 +20,7 @@ async function main() {
         console.log(device);
     });
 
-    const sensorsResponse = await client.getSensors(SensorUnits.Imperial);
+    const sensorsResponse = await client.getSensors(SensorUnits.Metric);
     sensorsResponse.results.forEach((sensor) => {
         console.log(sensor);
     });
