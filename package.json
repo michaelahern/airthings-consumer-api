@@ -13,7 +13,7 @@
   "license": "ISC",
   "author": "Michael Ahern <michael.ahern@gmail.com>",
   "files": [
-    "lib"
+    "./lib"
   ],
   "type": "module",
   "exports": {
