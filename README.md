@@ -6,7 +6,7 @@
 [![types](https://badgen.net/npm/types/airthings-consumer-api)](https://www.npmjs.com/package/airthings-consumer-api)
 [![build](https://github.com/michaelahern/airthings-consumer-api/actions/workflows/build.yml/badge.svg)](https://github.com/michaelahern/airthings-consumer-api/actions/workflows/build.yml)
 
-A Node.js client library for the [Airthings Consumer API](https://consumer-api-doc.airthings.com/) .
+An unofficial Node.js client library for the [Airthings Consumer API](https://consumer-api-doc.airthings.com/) .
 
 ## Docs
 

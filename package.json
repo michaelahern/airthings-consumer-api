@@ -1,9 +1,8 @@
 {
   "name": "airthings-consumer-api",
   "displayName": "Airthings Consumer API",
-  "type": "module",
-  "version": "0.2.0",
-  "description": "A Node.js client library for the Airthings Consumer API.",
+  "version": "0.3.0",
+  "description": "A unofficial Node.js client library for the Airthings Consumer API.",
   "keywords": [
     "airthings"
   ],
@@ -13,31 +12,34 @@
   },
   "license": "ISC",
   "author": "Michael Ahern <michael.ahern@gmail.com>",
-  "funding": {
-    "type": "paypal",
-    "url": "https://paypal.me/michaeljahern"
-  },
   "files": [
-    "dist"
+    "lib"
   ],
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./lib/module.js",
+      "types": "./lib/module.d.ts"
+    }
+  },
+  "main": "./lib/module.js",
+  "types": "./lib/module.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/michaelahern/airthings-consumer-api.git"
   },
   "scripts": {
     "build": "npm run clean && npm run lint && tsc",
-    "clean": "rimraf ./dist",
-    "cli": "npm run build && node dist/cli.js",
+    "clean": "rimraf ./lib",
     "docs": "typedoc",
+    "example": "npm run build && node ./lib/example.js",
     "lint": "eslint src/**/*.ts --max-warnings=0",
     "lint-fix": "eslint src/**/*.ts --max-warnings=0 --fix",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^4",
-    "@types/node": "^22",
+    "@types/node": "^20",
     "eslint": "^9",
     "rimraf": "^6",
     "typedoc": "~0.28",
