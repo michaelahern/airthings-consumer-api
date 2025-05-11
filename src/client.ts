@@ -166,7 +166,7 @@ export class AirthingsClient {
     }
 
     async #refreshAccessToken(): Promise<void> {
-        if (this.#accessToken && this.#accessToken.expires + (5 * 60 * 1000) > Date.now()) {
+        if (this.#accessToken && this.#accessToken.expires - (5 * 60 * 1000) > Date.now()) {
             return;
         }
 
