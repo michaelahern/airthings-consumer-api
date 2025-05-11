@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { AirthingsClient, SensorUnits } from './module.js';
 
 async function main() {

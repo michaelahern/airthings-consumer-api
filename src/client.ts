@@ -9,9 +9,9 @@ import type { Accounts, Devices, SensorResults, SensorResultsRateLimitMetrics } 
  * quality within their environments.
  */
 export class AirthingsClient {
-    private accessToken: AirthingsClientAccessToken | null;
-    private opts: AirthingsClientOpts;
-    private rateLimitMetrics: SensorResultsRateLimitMetrics;
+    #accessToken: AirthingsClientAccessToken | null;
+    #opts: AirthingsClientOpts;
+    #rateLimitMetrics: SensorResultsRateLimitMetrics;
 
     /**
      * @param opts - The options for the Airthings client, primarily client credentials
@@ -28,9 +28,9 @@ export class AirthingsClient {
      * ```
      */
     constructor(opts: AirthingsClientOpts) {
-        this.accessToken = null;
-        this.opts = opts;
-        this.rateLimitMetrics = { limit: -1, remaining: -1, reset: -1 };
+        this.#accessToken = null;
+        this.#opts = opts;
+        this.#rateLimitMetrics = { limit: -1, remaining: -1, reset: -1 };
     }
 
     /**
@@ -44,7 +44,7 @@ export class AirthingsClient {
      *
      * @see [Airthings Consumer API: Accounts](https://consumer-api-doc.airthings.com/api-docs#tag/Accounts)
      *
-     * @throws {Error} If the request fails
+     * @throws {@link AirthingsError} If the request fails
      */
     public async getAccounts(): Promise<Accounts> {
         const url = 'https://consumer-api.airthings.com/v1/accounts';
@@ -61,7 +61,7 @@ export class AirthingsClient {
      *
      * @see [Airthings Consumer API: Devices](https://consumer-api-doc.airthings.com/api-docs#tag/Device)
      *
-     * @throws {Error} If the request fails
+     * @throws {@link AirthingsError} If the request fails
      *
      * @example
      * ```javascript
@@ -74,7 +74,7 @@ export class AirthingsClient {
     public async getDevices(): Promise<Devices> {
         await this.#ensureAccountIdConfig();
 
-        const url = `https://consumer-api.airthings.com/v1/accounts/${this.opts.accountId}/devices`;
+        const url = `https://consumer-api.airthings.com/v1/accounts/${this.#opts.accountId}/devices`;
         const response = await this.#handleFetch(url);
         return await response.json() as Devices;
     }
@@ -93,7 +93,7 @@ export class AirthingsClient {
      *
      * @see [Airthings Consumer API: Sensors](https://consumer-api-doc.airthings.com/api-docs#tag/Sensor)
      *
-     * @throws {Error} If the request fails
+     * @throws {@link AirthingsError} If the request fails
      *
      * @example
      * ```javascript
@@ -106,16 +106,16 @@ export class AirthingsClient {
     public async getSensors(unit: SensorUnits, sn?: string[]): Promise<SensorResults> {
         await this.#ensureAccountIdConfig();
 
-        let url = `https://consumer-api.airthings.com/v1/accounts/${this.opts.accountId}/sensors?unit=${SensorUnits[unit].toLowerCase()}`;
+        let url = `https://consumer-api.airthings.com/v1/accounts/${this.#opts.accountId}/sensors?unit=${SensorUnits[unit].toLowerCase()}`;
         if (sn && sn.length > 0) {
             url += `&sn=${sn.join(',')}`;
         }
 
         const response = await this.#handleFetch(url);
 
-        this.rateLimitMetrics.limit = parseInt(response.headers.get('X-RateLimit-Limit') || '-1');
-        this.rateLimitMetrics.remaining = parseInt(response.headers.get('X-RateLimit-Remaining') || '-1');
-        this.rateLimitMetrics.reset = parseInt(response.headers.get('X-RateLimit-Reset') || '-1');
+        this.#rateLimitMetrics.limit = parseInt(response.headers.get('X-RateLimit-Limit') || '-1');
+        this.#rateLimitMetrics.remaining = parseInt(response.headers.get('X-RateLimit-Remaining') || '-1');
+        this.#rateLimitMetrics.reset = parseInt(response.headers.get('X-RateLimit-Reset') || '-1');
 
         return await response.json() as SensorResults;
     }
@@ -126,17 +126,17 @@ export class AirthingsClient {
      * @see [Airthings Consumer API: Rate Limits](https://consumer-api-doc.airthings.com/docs/api/rate-limit)
      */
     public getSensorsRateLimitMetrics(): SensorResultsRateLimitMetrics {
-        return this.rateLimitMetrics;
+        return this.#rateLimitMetrics;
     }
 
     async #ensureAccountIdConfig(): Promise<void> {
-        if (!this.opts.accountId) {
+        if (!this.#opts.accountId) {
             const accountsResponse = await this.getAccounts();
             if (accountsResponse.accounts.length > 0) {
-                this.opts.accountId = accountsResponse.accounts[0].id;
+                this.#opts.accountId = accountsResponse.accounts[0].id;
             }
             else {
-                throw new Error('Airthings: No Account ID');
+                throw new AirthingsError('No Account ID');
             }
         }
     }
@@ -144,13 +144,13 @@ export class AirthingsClient {
     async #handleFetch(url: string): Promise<Response> {
         await this.#refreshAccessToken();
 
-        if (!this.accessToken) {
-            throw new Error('Airthings: No Access Token');
+        if (!this.#accessToken) {
+            throw new AirthingsError('No Access Token');
         }
 
         const response = await fetch(url, {
             headers: {
-                Authorization: `${this.accessToken.type} ${this.accessToken.token}`
+                Authorization: `${this.#accessToken.type} ${this.#accessToken.token}`
             }
         });
 
@@ -161,12 +161,12 @@ export class AirthingsClient {
 
     async #handleFetchResponseError(response: Response): Promise<void> {
         if (!response.ok) {
-            throw new Error(`Airthings: Request Error [${response.status}: ${await response.text()}]`);
+            throw new AirthingsError(`Request Error [${response.status}: ${await response.text()}]`);
         }
     }
 
     async #refreshAccessToken(): Promise<void> {
-        if (this.accessToken && this.accessToken.expires + (5 * 60 * 1000) > Date.now()) {
+        if (this.#accessToken && this.#accessToken.expires - (5 * 60 * 1000) > Date.now()) {
             return;
         }
 
@@ -174,7 +174,7 @@ export class AirthingsClient {
             {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Basic ${Buffer.from(`${this.opts.clientId}:${this.opts.clientSecret}`).toString('base64')}`,
+                    'Authorization': `Basic ${Buffer.from(`${this.#opts.clientId}:${this.#opts.clientSecret}`).toString('base64')}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -191,7 +191,7 @@ export class AirthingsClient {
             expires_in: number;
         };
 
-        this.accessToken = {
+        this.#accessToken = {
             token: tokenData.access_token,
             type: tokenData.token_type,
             expires: tokenData.expires_in * 1000 + Date.now()
@@ -213,3 +213,5 @@ export interface AirthingsClientOpts {
     /**  Client Secret created via the Airthings Dashboard */
     clientSecret: string;
 }
+
+export class AirthingsError extends Error { }
