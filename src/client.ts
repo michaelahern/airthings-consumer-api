@@ -44,7 +44,7 @@ export class AirthingsClient {
      *
      * @see [Airthings Consumer API: Accounts](https://consumer-api-doc.airthings.com/api-docs#tag/Accounts)
      *
-     * @throws {Error} If the request fails
+     * @throws {@link AirthingsError} If the request fails
      */
     public async getAccounts(): Promise<Accounts> {
         const url = 'https://consumer-api.airthings.com/v1/accounts';
@@ -61,7 +61,7 @@ export class AirthingsClient {
      *
      * @see [Airthings Consumer API: Devices](https://consumer-api-doc.airthings.com/api-docs#tag/Device)
      *
-     * @throws {Error} If the request fails
+     * @throws {@link AirthingsError} If the request fails
      *
      * @example
      * ```javascript
@@ -93,7 +93,7 @@ export class AirthingsClient {
      *
      * @see [Airthings Consumer API: Sensors](https://consumer-api-doc.airthings.com/api-docs#tag/Sensor)
      *
-     * @throws {Error} If the request fails
+     * @throws {@link AirthingsError} If the request fails
      *
      * @example
      * ```javascript
@@ -136,7 +136,7 @@ export class AirthingsClient {
                 this.#opts.accountId = accountsResponse.accounts[0].id;
             }
             else {
-                throw new Error('Airthings: No Account ID');
+                throw new AirthingsError('No Account ID');
             }
         }
     }
@@ -145,7 +145,7 @@ export class AirthingsClient {
         await this.#refreshAccessToken();
 
         if (!this.#accessToken) {
-            throw new Error('Airthings: No Access Token');
+            throw new AirthingsError('No Access Token');
         }
 
         const response = await fetch(url, {
@@ -161,7 +161,7 @@ export class AirthingsClient {
 
     async #handleFetchResponseError(response: Response): Promise<void> {
         if (!response.ok) {
-            throw new Error(`Airthings: Request Error [${response.status}: ${await response.text()}]`);
+            throw new AirthingsError(`Request Error [${response.status}: ${await response.text()}]`);
         }
     }
 
@@ -213,3 +213,5 @@ export interface AirthingsClientOpts {
     /**  Client Secret created via the Airthings Dashboard */
     clientSecret: string;
 }
+
+export class AirthingsError extends Error { }
