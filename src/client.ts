@@ -2,11 +2,11 @@ import { SensorUnits } from './schemas.js';
 import type { Accounts, Devices, SensorResults, SensorResultsRateLimitMetrics } from './schemas.js';
 
 /**
- * The Airthings for Consumer API provides secure and authorized access for Airthings
- * consumers to retrieve the latest data from their Airthings air quality monitors. Leveraging
- * HTTPS and OAuth for enhanced security, this API empowers users to seamlessly access
- * real-time information from their Airthings devices, gaining valuable insights into the air
- * quality within their environments.
+ * La API de Airthings para Consumidores proporciona acceso seguro y autorizado para que los
+ * consumidores de Airthings recuperen los datos más recientes de sus monitores de calidad del aire
+ * Airthings. Aprovechando HTTPS y OAuth para mayor seguridad, esta API permite a los usuarios
+ * acceder sin problemas a información en tiempo real de sus dispositivos Airthings, obteniendo
+ * información valiosa sobre la calidad del aire en sus entornos.
  */
 export class AirthingsClient {
     #accessToken: AirthingsClientAccessToken | null;
@@ -14,10 +14,10 @@ export class AirthingsClient {
     #rateLimitMetrics: SensorResultsRateLimitMetrics;
 
     /**
-     * @param opts - The options for the Airthings client, primarily client credentials
+     * @param opts - Las opciones para el cliente de Airthings, principalmente credenciales del cliente
      *
      * @remarks
-     * Create an Airthings Client ID & Secret at https://consumer-api-doc.airthings.com/dashboard
+     * Crea un ID de Cliente y Secreto de Airthings en https://consumer-api-doc.airthings.com/dashboard
      *
      * @example
      * ```javascript
@@ -34,17 +34,17 @@ export class AirthingsClient {
     }
 
     /**
-     * List all accounts the current user is member of
+     * Lista todas las cuentas de las que el usuario actual es miembro
      *
      * @remarks
-     * Lists all accounts the current user is member of. The data returned by this endpoint
-     * changes when a user is added or removed from business accounts. It is safe to assume
-     * that the accountId remains constant for Consumer users. The accountId returned by this
-     * endpoint is used to fetch the devices and sensors from the other endpoints.
+     * Lista todas las cuentas de las que el usuario actual es miembro. Los datos devueltos por este
+     * endpoint cambian cuando un usuario es agregado o removido de las cuentas empresariales. Es
+     * seguro asumir que el accountId permanece constante para usuarios Consumidores. El accountId
+     * devuelto por este endpoint se usa para obtener los dispositivos y sensores de los otros endpoints.
      *
      * @see [Airthings Consumer API: Accounts](https://consumer-api-doc.airthings.com/api-docs#tag/Accounts)
      *
-     * @throws {@link AirthingsError} If the request fails
+     * @throws {@link AirthingsError} Si la solicitud falla
      */
     public async getAccounts(): Promise<Accounts> {
         const url = 'https://consumer-api.airthings.com/v1/accounts';
@@ -53,15 +53,15 @@ export class AirthingsClient {
     }
 
     /**
-     * Get all devices connected to a user
+     * Obtiene todos los dispositivos conectados a un usuario
      *
      * @remarks
-     * List all devices (and their sensor abilities) connected to a user’s account. The data
-     * returned by this endpoint changes when a device is registered, unregistered or renamed.
+     * Lista todos los dispositivos (y sus capacidades de sensores) conectados a la cuenta de un usuario. Los datos
+     * devueltos por este endpoint cambian cuando un dispositivo es registrado, desregistrado o renombrado.
      *
      * @see [Airthings Consumer API: Devices](https://consumer-api-doc.airthings.com/api-docs#tag/Device)
      *
-     * @throws {@link AirthingsError} If the request fails
+     * @throws {@link AirthingsError} Si la solicitud falla
      *
      * @example
      * ```javascript
@@ -80,20 +80,20 @@ export class AirthingsClient {
     }
 
     /**
-     * Get sensors for a set of devices
+     * Obtiene sensores para un conjunto de dispositivos
      *
-     * @param unit - The units type sensor values will be returned in, metric or imperial
-     * @param sn - An optional list of serial numbers to filter the results
+     * @param unit - El tipo de unidades en que se devolverán los valores de los sensores, métrico o imperial
+     * @param sn - Una lista opcional de números de serie para filtrar los resultados
      *
      * @remarks
-     * Get sensors for a set of devices. The response will contain the latest sensor values for
-     * the devices. The sensor values are updated depending on the device types sampling
-     * rate. It is recommended to poll the API at a regular interval to get the latest
-     * sensor values. The response will be paginated with a maximum of 50 records per page.
+     * Obtiene sensores para un conjunto de dispositivos. La respuesta contendrá los valores de sensores más
+     * recientes para los dispositivos. Los valores de los sensores se actualizan dependiendo de la tasa de
+     * muestreo del tipo de dispositivo. Se recomienda sondear la API a intervalos regulares para obtener
+     * los valores más recientes de los sensores. La respuesta estará paginada con un máximo de 50 registros por página.
      *
      * @see [Airthings Consumer API: Sensors](https://consumer-api-doc.airthings.com/api-docs#tag/Sensor)
      *
-     * @throws {@link AirthingsError} If the request fails
+     * @throws {@link AirthingsError} Si la solicitud falla
      *
      * @example
      * ```javascript
@@ -121,7 +121,7 @@ export class AirthingsClient {
     }
 
     /**
-     * Get rate limit metrics from the last getSensors request
+     * Obtiene las métricas de límite de velocidad de la última solicitud getSensors
      *
      * @see [Airthings Consumer API: Rate Limits](https://consumer-api-doc.airthings.com/docs/api/rate-limit)
      */
@@ -206,11 +206,11 @@ interface AirthingsClientAccessToken {
 }
 
 export interface AirthingsClientOpts {
-    /**  Override the default Account ID */
+    /** Sobrescribir el ID de Cuenta predeterminado */
     accountId?: string;
-    /**  Client ID created via the Airthings Dashboard */
+    /** ID de Cliente creado mediante el Panel de Airthings */
     clientId: string;
-    /**  Client Secret created via the Airthings Dashboard */
+    /** Secreto de Cliente creado mediante el Panel de Airthings */
     clientSecret: string;
 }
 
