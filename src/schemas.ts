@@ -74,11 +74,11 @@ export interface SensorResults {
 }
 
 export interface SensorResultsRateLimitMetrics {
-    /** X-RateLimit-Limit: Request limit per hour. */
+    /** X-RateLimit-Limit: Límite de solicitudes por hora. */
     limit: number;
-    /** X-RateLimit-Remaining: The number of requests left for the time window. */
+    /** X-RateLimit-Remaining: El número de solicitudes restantes para la ventana de tiempo. */
     remaining: number;
-    /** X-RateLimit-Reset: The timestamp at which the current rate limit window resets. */
+    /** X-RateLimit-Reset: La marca de tiempo en la que se reinicia la ventana actual de límite de velocidad. */
     reset: number;
 }
 
