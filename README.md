@@ -6,7 +6,7 @@
 [![types](https://badgen.net/npm/types/airthings-consumer-api)](https://www.npmjs.com/package/airthings-consumer-api)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/michaelahern/airthings-consumer-api)
 
-An unofficial Node.js client library for the [Airthings Consumer API](https://consumer-api-doc.airthings.com/).
+An unofficial Node.js client library for Airthings Air Quality Monitors via the [Airthings Consumer API](https://consumer-api-doc.airthings.com/).
 
 ## Docs
 
