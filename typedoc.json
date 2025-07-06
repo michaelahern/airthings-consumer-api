@@ -1,6 +1,8 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["./src/module.ts"],
+  "entryPoints": [
+    "./src/module.ts"
+  ],
   "name": "Airthings Consumer API",
   "out": "docs",
   "sort": [
