@@ -132,7 +132,7 @@ export class AirthingsClient {
     async #ensureAccountIdConfig(): Promise<void> {
         if (!this.#opts.accountId) {
             const accountsResponse = await this.getAccounts();
-            if (accountsResponse.accounts.length > 0) {
+            if (accountsResponse.accounts[0]) {
                 this.#opts.accountId = accountsResponse.accounts[0].id;
             }
             else {
