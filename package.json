@@ -1,7 +1,7 @@
 {
   "name": "airthings-consumer-api",
   "displayName": "Airthings Consumer API Client",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "An unofficial Node.js client library for Airthings Air Quality Monitors via the Airthings Consumer API.",
   "keywords": [
     "airthings"
