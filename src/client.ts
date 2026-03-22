@@ -79,7 +79,9 @@ export class AirthingsClient {
      * @param unit - The units type sensor values will be returned in, metric or imperial
      * @param sn - An optional list of serial numbers to filter the results
      * @returns
-     * List of sensors for specified device
+     * Sensor results and pagination metadata for the specified devices. The returned
+     * {@link SensorResults} object includes the list of sensor readings in {@link SensorResults.results | results},
+     * along with pagination fields such as {@link SensorResults.hasNext | hasNext} and {@link SensorResults.totalPages | totalPages}.
      * @remarks
      * Get sensors for a set of devices. The response will contain the latest sensor values for
      * the devices. The sensor values are updated depending on the device types sampling
