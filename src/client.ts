@@ -34,8 +34,6 @@ export class AirthingsClient {
     /**
      * List all accounts the current user is member of
      * @returns
-     * List of accounts
-     * @remarks
      * Lists all accounts the current user is member of. The data returned by this endpoint
      * changes when a user is added or removed from business accounts. It is safe to assume
      * that the accountId remains constant for Consumer users. The accountId returned by this
@@ -52,8 +50,6 @@ export class AirthingsClient {
     /**
      * Get all devices connected to a user
      * @returns
-     * List of devices
-     * @remarks
      * List all devices (and their sensor abilities) connected to a user’s account. The data
      * returned by this endpoint changes when a device is registered, unregistered or renamed.
      * @see [Airthings Consumer API: Devices](https://consumer-api-doc.airthings.com/api-docs#tag/Device)
@@ -79,10 +75,6 @@ export class AirthingsClient {
      * @param unit - The units type sensor values will be returned in, metric or imperial
      * @param sn - An optional list of serial numbers to filter the results
      * @returns
-     * Sensor results and pagination metadata for the specified devices. The returned
-     * {@link SensorResults} object includes the list of sensor readings in {@link SensorResults.results | results},
-     * along with pagination fields such as {@link SensorResults.hasNext | hasNext} and {@link SensorResults.totalPages | totalPages}.
-     * @remarks
      * Get sensors for a set of devices. The response will contain the latest sensor values for
      * the devices. The sensor values are updated depending on the device types sampling
      * rate. It is recommended to poll the API at a regular interval to get the latest
@@ -117,7 +109,10 @@ export class AirthingsClient {
     /**
      * Get rate limit metrics from the last getSensors request
      * @returns
-     * Current rate limit metrics
+     * Current rate limit metrics reflecting the `X-RateLimit-Limit`,
+     * `X-RateLimit-Remaining`, and `X-RateLimit-Reset` response headers from
+     * the most recent {@link getSensors} call. Before any {@link getSensors}
+     * call has been made, all rate limit metrics are initialised to `-1`.
      * @see [Airthings Consumer API: Rate Limits](https://consumer-api-doc.airthings.com/docs/api/rate-limit)
      */
     public getSensorsRateLimitMetrics(): SensorResultsRateLimitMetrics {
