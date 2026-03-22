@@ -15,10 +15,8 @@ export class AirthingsClient {
 
     /**
      * @param opts - The options for the Airthings client, primarily client credentials
-     *
      * @remarks
      * Create an Airthings Client ID & Secret at https://consumer-api-doc.airthings.com/dashboard
-     *
      * @example
      * ```javascript
      * const client = new AirthingsClient({
@@ -35,15 +33,14 @@ export class AirthingsClient {
 
     /**
      * List all accounts the current user is member of
-     *
+     * @returns
+     * List of accounts
      * @remarks
      * Lists all accounts the current user is member of. The data returned by this endpoint
      * changes when a user is added or removed from business accounts. It is safe to assume
      * that the accountId remains constant for Consumer users. The accountId returned by this
      * endpoint is used to fetch the devices and sensors from the other endpoints.
-     *
      * @see [Airthings Consumer API: Accounts](https://consumer-api-doc.airthings.com/api-docs#tag/Accounts)
-     *
      * @throws {@link AirthingsError} If the request fails
      */
     public async getAccounts(): Promise<Accounts> {
@@ -54,15 +51,13 @@ export class AirthingsClient {
 
     /**
      * Get all devices connected to a user
-     *
+     * @returns
+     * List of devices
      * @remarks
      * List all devices (and their sensor abilities) connected to a user’s account. The data
      * returned by this endpoint changes when a device is registered, unregistered or renamed.
-     *
      * @see [Airthings Consumer API: Devices](https://consumer-api-doc.airthings.com/api-docs#tag/Device)
-     *
      * @throws {@link AirthingsError} If the request fails
-     *
      * @example
      * ```javascript
      * const devicesResponse = await client.getDevices();
@@ -81,20 +76,17 @@ export class AirthingsClient {
 
     /**
      * Get sensors for a set of devices
-     *
      * @param unit - The units type sensor values will be returned in, metric or imperial
      * @param sn - An optional list of serial numbers to filter the results
-     *
+     * @returns
+     * List of sensors for specified device
      * @remarks
      * Get sensors for a set of devices. The response will contain the latest sensor values for
      * the devices. The sensor values are updated depending on the device types sampling
      * rate. It is recommended to poll the API at a regular interval to get the latest
      * sensor values. The response will be paginated with a maximum of 50 records per page.
-     *
      * @see [Airthings Consumer API: Sensors](https://consumer-api-doc.airthings.com/api-docs#tag/Sensor)
-     *
      * @throws {@link AirthingsError} If the request fails
-     *
      * @example
      * ```javascript
      * const sensorsResponse = await client.getSensors(SensorUnits.Imperial);
@@ -122,7 +114,8 @@ export class AirthingsClient {
 
     /**
      * Get rate limit metrics from the last getSensors request
-     *
+     * @returns
+     * Current rate limit metrics
      * @see [Airthings Consumer API: Rate Limits](https://consumer-api-doc.airthings.com/docs/api/rate-limit)
      */
     public getSensorsRateLimitMetrics(): SensorResultsRateLimitMetrics {

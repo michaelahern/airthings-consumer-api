@@ -1,5 +1,8 @@
 import { AirthingsClient, SensorUnits } from './module.js';
 
+/**
+ *
+ */
 async function main() {
     const clientId = process.env.AIRTHINGS_CLIENT_ID;
     const clientSecret = process.env.AIRTHINGS_CLIENT_SECRET;
