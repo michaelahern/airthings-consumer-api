@@ -1,3 +1,5 @@
+import { defineConfig } from 'eslint/config';
+
 import js from '@eslint/js';
 import json from '@eslint/json';
 import jsonc from 'eslint-plugin-jsonc';
@@ -6,7 +8,7 @@ import stylistic from '@stylistic/eslint-plugin';
 import ts from 'typescript-eslint';
 import yml from 'eslint-plugin-yml';
 
-export default ts.config([
+export default defineConfig ([
     {
         name: 'global-ignore',
         ignores: ['./lib', '**/package-lock.json']
