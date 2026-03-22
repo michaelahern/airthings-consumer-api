@@ -8,7 +8,7 @@ import stylistic from '@stylistic/eslint-plugin';
 import ts from 'typescript-eslint';
 import yml from 'eslint-plugin-yml';
 
-export default defineConfig ([
+export default defineConfig([
     {
         name: 'global-ignore',
         ignores: ['./lib', '**/package-lock.json']
