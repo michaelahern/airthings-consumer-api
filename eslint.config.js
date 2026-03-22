@@ -1,6 +1,7 @@
 import { defineConfig } from 'eslint/config';
 
 import js from '@eslint/js';
+import jsdoc from 'eslint-plugin-jsdoc';
 import json from '@eslint/json';
 import jsonc from 'eslint-plugin-jsonc';
 import markdown from '@eslint/markdown';
@@ -64,5 +65,13 @@ export default defineConfig([
         name: 'yml',
         files: ['**/*.yml', '**/*.yaml'],
         extends: [yml.configs['flat/recommended']]
+    },
+    {
+        // https://github.com/gajus/eslint-plugin-jsdoc
+        name: 'jsdoc',
+        files: ['**/*.ts'],
+        extends: [
+            jsdoc.configs['flat/recommended-tsdoc']
+        ]
     }
 ]);
