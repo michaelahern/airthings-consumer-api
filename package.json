@@ -42,7 +42,7 @@
     "@eslint/json": "^1",
     "@eslint/markdown": "^8",
     "@stylistic/eslint-plugin": "^5",
-    "@types/node": "^20",
+    "@types/node": "^22",
     "eslint": "^10",
     "eslint-plugin-jsdoc": "^62",
     "eslint-plugin-jsonc": "^3",
@@ -53,6 +53,6 @@
     "typescript-eslint": "^8"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
