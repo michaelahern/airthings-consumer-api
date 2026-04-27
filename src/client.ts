@@ -1,5 +1,5 @@
 import { SensorUnits } from './schemas.js';
-import type { Accounts, Devices, SensorResults, SensorResultsRateLimitMetrics } from './schemas.js';
+import type { Accounts, Devices, RemoteControlState, SensorResults, SensorResultsRateLimitMetrics } from './schemas.js';
 
 /**
  * The Airthings for Consumer API provides secure and authorized access for Airthings
@@ -107,6 +107,62 @@ export class AirthingsClient {
     }
 
     /**
+     * Get the remote control state of a Renew device
+     * @param sn - The serial number of the device
+     * @returns
+     * The last reported operational mode of a Renew (AP\_1) air purifier.
+     * The state reflects what the device last reported, not necessarily the
+     * command last sent. If the device has never synced a mode, a 404 error
+     * is returned.
+     * @see [Airthings Consumer API: Remote Control](https://consumer-api-doc.airthings.com/api-docs#tag/Remote-Control)
+     * @throws {@link AirthingsError} If the request fails
+     * @example
+     * ```javascript
+     * const state = await client.getRemoteControl('4100007329');
+     * console.log(state.mode);
+     * ```
+     */
+    public async getRemoteControl(sn: string): Promise<RemoteControlState> {
+        await this.#ensureAccountIdConfig();
+
+        const url = `https://consumer-api.airthings.com/v1/accounts/${this.#opts.accountId}/devices/${sn}/remote-control`;
+        const response = await this.#handleFetch(url);
+        return await response.json() as RemoteControlState;
+    }
+
+    /**
+     * Set the remote control mode of a Renew device
+     * @param sn - The serial number of the device
+     * @param state - The desired operational mode and optional fan speed
+     * @returns
+     * Set the operational mode of a Renew (AP\_1) air purifier. Available modes
+     * are OFF, AUTO, SLEEP, BOOST, and MANUAL. Fan speed (1-5) is required for
+     * MANUAL mode. The command is forwarded to the device asynchronously. Use
+     * {@link getRemoteControl} to confirm the device has applied the new mode.
+     * @see [Airthings Consumer API: Remote Control](https://consumer-api-doc.airthings.com/api-docs#tag/Remote-Control)
+     * @throws {@link AirthingsError} If the request fails
+     * @example
+     * ```javascript
+     * import { RemoteControlMode } from 'airthings-consumer-api';
+     *
+     * await client.setRemoteControl('4100007329', {
+     *     mode: RemoteControlMode.Manual,
+     *     fanSpeed: 3
+     * });
+     * ```
+     */
+    public async setRemoteControl(sn: string, state: RemoteControlState): Promise<void> {
+        await this.#ensureAccountIdConfig();
+
+        const url = `https://consumer-api.airthings.com/v1/accounts/${this.#opts.accountId}/devices/${sn}/remote-control`;
+        await this.#handleFetch(url, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state)
+        });
+    }
+
+    /**
      * Get rate limit metrics from the last getSensors request
      * @returns
      * Current rate limit metrics reflecting the `X-RateLimit-Limit`,
@@ -131,18 +187,17 @@ export class AirthingsClient {
         }
     }
 
-    async #handleFetch(url: string): Promise<Response> {
+    async #handleFetch(url: string, init?: RequestInit): Promise<Response> {
         await this.#refreshAccessToken();
 
         if (!this.#accessToken) {
             throw new AirthingsError('No Access Token');
         }
 
-        const response = await fetch(url, {
-            headers: {
-                Authorization: `${this.#accessToken.type} ${this.#accessToken.token}`
-            }
-        });
+        const headers = new Headers(init?.headers);
+        headers.set('Authorization', `${this.#accessToken.type} ${this.#accessToken.token}`);
+
+        const response = await fetch(url, { ...init, headers });
 
         await this.#handleFetchResponseError(response);
 

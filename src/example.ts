@@ -1,4 +1,4 @@
-import { AirthingsClient, SensorUnits } from './module.js';
+import { AirthingsClient, RemoteControlMode, SensorUnits } from './module.js';
 
 /**
  * Entry point that initializes an Airthings client, validates required
@@ -32,6 +32,16 @@ async function main() {
     });
 
     console.log(client.getSensorsRateLimitMetrics());
+
+    const renewDevice = devicesResponse.devices.find(d => d.type === 'AP_1');
+    if (renewDevice) {
+        const state = await client.getRemoteControl(renewDevice.serialNumber);
+        console.log(state);
+
+        await client.setRemoteControl(renewDevice.serialNumber, {
+            mode: RemoteControlMode.Auto
+        });
+    }
 }
 
 main().catch(err => console.error(err));
