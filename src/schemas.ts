@@ -86,3 +86,27 @@ export enum SensorUnits {
     Metric,
     Imperial
 }
+
+export enum RemoteControlMode {
+    Off = 'OFF',
+    Auto = 'AUTO',
+    Sleep = 'SLEEP',
+    Boost = 'BOOST',
+    Manual = 'MANUAL'
+}
+
+/**
+ * @example
+ * ```json
+ * { mode: 'AUTO' }
+ * ```
+ * @example
+ * ```json
+ * { mode: 'MANUAL', fanSpeed: 3 }
+ * ```
+ */
+export interface RemoteControlState {
+    mode: RemoteControlMode;
+    /** Fan speed level (1-5). Required when mode is {@link RemoteControlMode.Manual}. */
+    fanSpeed?: number;
+}
