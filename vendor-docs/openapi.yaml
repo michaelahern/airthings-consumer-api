@@ -124,6 +124,155 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/accounts/{accountId}/devices/{sn}/remote-control:
+    put:
+      summary: Set remote control mode for a Renew device
+      description: |
+        Set the operational mode of a Renew (AP_1) air purifier.
+
+        **Available modes:**
+        | Mode | Description |
+        |------|-------------|
+        | `OFF` | Turn off the air purifier |
+        | `AUTO` | Automatically adjusts fan speed based on air quality measured by the built-in laser PM sensor |
+        | `SLEEP` | Runs at low speed for 8 hours at a whisper-quiet 23 dB; dims the control panel |
+        | `BOOST` | Runs at maximum fan speed for 60 minutes for rapid air purification |
+        | `MANUAL` | Fixed fan speed set by `fanSpeed` (1 = lowest / quietest, 5 = highest) |
+
+        The command is forwarded to the device asynchronously. Use the GET endpoint to confirm the device has applied the new mode.
+      operationId: setRemoteControl
+      parameters:
+        - $ref: '#/components/parameters/accountId'
+        - $ref: '#/components/parameters/deviceSerialNumber'
+      tags:
+        - Remote Control
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoteControlRequest'
+            examples:
+              off:
+                summary: Turn off
+                value:
+                  mode: OFF
+              auto:
+                summary: Automatic mode
+                value:
+                  mode: AUTO
+              sleep:
+                summary: Sleep mode
+                value:
+                  mode: SLEEP
+              boost:
+                summary: Boost mode
+                value:
+                  mode: BOOST
+              manual:
+                summary: Manual fan speed (level 3 of 5)
+                value:
+                  mode: MANUAL
+                  fanSpeed: 3
+      responses:
+        200:
+          description: Mode successfully queued for the device
+        400:
+          description: Bad request — unsupported device type, unknown mode, or missing `fanSpeed` for MANUAL mode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "fanSpeed is required for MANUAL mode"
+        403:
+          description: Forbidden (user does not own the device)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        429:
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Get remote control state of a Renew device
+      description: |
+        Get the last reported operational mode of a Renew (AP_1) air purifier.
+
+        The state reflects what the device last reported, not necessarily the command last sent.
+        If the device has never synced a mode, a `404` is returned.
+      operationId: getRemoteControl
+      parameters:
+        - $ref: '#/components/parameters/accountId'
+        - $ref: '#/components/parameters/deviceSerialNumber'
+      tags:
+        - Remote Control
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoteControlResponse'
+              examples:
+                auto:
+                  summary: Device is in AUTO mode
+                  value:
+                    mode: AUTO
+                manual:
+                  summary: Device is in MANUAL mode at fan speed 3
+                  value:
+                    mode: MANUAL
+                    fanSpeed: 3
+                off:
+                  summary: Device is off
+                  value:
+                    mode: OFF
+        400:
+          description: Bad request — unsupported device type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        403:
+          description: Forbidden (user does not own the device)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: The device has not yet reported a remote control state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "Device 4100007329 has no remote control state. The device may not have synced yet."
+        429:
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v1/health:
     get:
       summary: Get the health of the API
@@ -213,12 +362,134 @@ components:
           type: array
           items:
             type: string
+    RemoteControlRequest:
+      oneOf:
+        - $ref: '#/components/schemas/RemoteControlOffRequest'
+        - $ref: '#/components/schemas/RemoteControlAutoRequest'
+        - $ref: '#/components/schemas/RemoteControlSleepRequest'
+        - $ref: '#/components/schemas/RemoteControlBoostRequest'
+        - $ref: '#/components/schemas/RemoteControlManualRequest'
+      discriminator:
+        propertyName: mode
+        mapping:
+          OFF: '#/components/schemas/RemoteControlOffRequest'
+          AUTO: '#/components/schemas/RemoteControlAutoRequest'
+          SLEEP: '#/components/schemas/RemoteControlSleepRequest'
+          BOOST: '#/components/schemas/RemoteControlBoostRequest'
+          MANUAL: '#/components/schemas/RemoteControlManualRequest'
+    RemoteControlResponse:
+      oneOf:
+        - $ref: '#/components/schemas/RemoteControlOffResponse'
+        - $ref: '#/components/schemas/RemoteControlAutoResponse'
+        - $ref: '#/components/schemas/RemoteControlSleepResponse'
+        - $ref: '#/components/schemas/RemoteControlBoostResponse'
+        - $ref: '#/components/schemas/RemoteControlManualResponse'
+      discriminator:
+        propertyName: mode
+        mapping:
+          OFF: '#/components/schemas/RemoteControlOffResponse'
+          AUTO: '#/components/schemas/RemoteControlAutoResponse'
+          SLEEP: '#/components/schemas/RemoteControlSleepResponse'
+          BOOST: '#/components/schemas/RemoteControlBoostResponse'
+          MANUAL: '#/components/schemas/RemoteControlManualResponse'
+    RemoteControlOffRequest:
+      type: object
+      description: Turn off the air purifier
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [OFF]
+    RemoteControlAutoRequest:
+      type: object
+      description: Automatically adjusts fan speed based on air quality measured by the built-in laser PM sensor
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [AUTO]
+    RemoteControlSleepRequest:
+      type: object
+      description: Runs at low speed for 8 hours at a whisper-quiet 23 dB; dims the control panel for nighttime use
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [SLEEP]
+    RemoteControlBoostRequest:
+      type: object
+      description: Runs at maximum fan speed for 60 minutes for rapid air purification
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [BOOST]
+    RemoteControlManualRequest:
+      type: object
+      description: Fixed fan speed controlled manually
+      required: [mode, fanSpeed]
+      properties:
+        mode:
+          type: string
+          enum: [MANUAL]
+        fanSpeed:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Fan speed level — 1 (lowest / quietest) to 5 (highest)
+    RemoteControlOffResponse:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [OFF]
+    RemoteControlAutoResponse:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [AUTO]
+    RemoteControlSleepResponse:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [SLEEP]
+    RemoteControlBoostResponse:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [BOOST]
+    RemoteControlManualResponse:
+      type: object
+      required: [mode, fanSpeed]
+      properties:
+        mode:
+          type: string
+          enum: [MANUAL]
+        fanSpeed:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Fan speed level — 1 (lowest / quietest) to 5 (highest)
   parameters:
     accountId:
       name: accountId
       in: path
       required: true
       description: The account ID associated with the user
+      schema:
+        type: string
+    deviceSerialNumber:
+      name: sn
+      in: path
+      required: true
+      description: The serial number of the device
       schema:
         type: string
     deviceSerialNumbers:
